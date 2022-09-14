@@ -314,10 +314,12 @@ func (b *Buffer) SetPLIThrottle(duration int64) {
 
 func (b *Buffer) SendPLI() {
 	b.RLock()
+	b.logger.Debugw("SPOTAI: SendPLI b.rtpStats=", b.rtpStats)
 	if b.rtpStats == nil || b.rtpStats.TimeSinceLastPli() < b.pliThrottle {
 		b.RUnlock()
 		return
 	}
+	b.logger.Debugw("SPOTAI: SendPLI b.rtpStats.TimeSinceLastPli=", b.rtpStats.TimeSinceLastPli())
 
 	b.rtpStats.UpdatePliAndTime(1)
 	b.RUnlock()

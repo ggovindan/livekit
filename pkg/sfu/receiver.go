@@ -389,6 +389,7 @@ func (w *WebRTCReceiver) SendPLI(layer int32) {
 	// TODO :  should send LRR (Layer Refresh Request) instead of PLI
 	buff := w.getBuffer(layer)
 	if buff == nil {
+		w.logger.Warnw("SPOTAI: SendPLI the buffer is nil not sending PLI", nil)
 		return
 	}
 
