@@ -279,7 +279,7 @@ func (d *DownTrack) Bind(t webrtc.TrackLocalContext) (webrtc.RTPCodecParameters,
 // Unbind implements the teardown logic when the track is no longer needed. This happens
 // because a track has been stopped.
 func (d *DownTrack) Unbind(_ webrtc.TrackLocalContext) error {
-	d.logger.Debugw("SPOT: Downtrack unbound", "subscriberId", d.subscriberID)
+	d.logger.Debugw("SPOT: Downtrack unbound")
 	d.bound.Store(false)
 	return nil
 }
@@ -600,10 +600,10 @@ func (d *DownTrack) Close() {
 
 // Close track, flush used to indicate whether send blank frame to flush
 // decoder of client.
-// 1. When transceiver is reused by other participant's video track,
-//    set flush=true to avoid previous video shows before previous stream is displayed.
-// 2. in case of session migration, participant migrate from other node, video track should
-//    be resumed with same participant, set flush=false since we don't need to flush decoder.
+//  1. When transceiver is reused by other participant's video track,
+//     set flush=true to avoid previous video shows before previous stream is displayed.
+//  2. in case of session migration, participant migrate from other node, video track should
+//     be resumed with same participant, set flush=false since we don't need to flush decoder.
 func (d *DownTrack) CloseWithFlush(flush bool) {
 	d.forwarder.Mute(true)
 
