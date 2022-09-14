@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/pion/sdp/v3"
+	"github.com/pion/webrtc/v3"
 	"io"
 	"strings"
 	"sync"
@@ -371,6 +373,7 @@ func (d *DownTrack) keyFrameRequester(generation uint32, layer int32) {
 
 		<-ticker.C
 
+		d.logger.Debugw("After PLI ticker interval", "generation", generation, "layer", layer, "bound", d.bound.Load(), "current_KFGG", d.keyFrameRequestGeneration.Load())
 		if generation != d.keyFrameRequestGeneration.Load() || !d.bound.Load() {
 			return
 		}

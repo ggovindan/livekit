@@ -319,7 +319,7 @@ func (b *Buffer) SendPLI() {
 		b.RUnlock()
 		return
 	}
-	b.logger.Debugw("SPOTAI: SendPLI", "b.rtpStats.TimeSinceLastPli=", b.rtpStats.TimeSinceLastPli())
+	//b.logger.Debugw("SPOTAI: SendPLI", "b.rtpStats.TimeSinceLastPli", b.rtpStats.TimeSinceLastPli())
 
 	b.rtpStats.UpdatePliAndTime(1)
 	b.RUnlock()
