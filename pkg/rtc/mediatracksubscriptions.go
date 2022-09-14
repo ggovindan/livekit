@@ -8,7 +8,6 @@ import (
 
 	"github.com/bep/debounce"
 	"github.com/pion/rtcp"
-	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/rtcerr"
 
 	"github.com/livekit/protocol/livekit"
@@ -106,6 +105,7 @@ func (t *MediaTrackSubscriptions) IsSubscriber(subID livekit.ParticipantID) bool
 
 // AddSubscriber subscribes sub to current mediaTrack
 func (t *MediaTrackSubscriptions) AddSubscriber(sub types.LocalParticipant, codec webrtc.RTPCodecCapability, wr WrappedReceiver) (*sfu.DownTrack, error) {
+	t.params.Logger.Debugw("SPOT: Adding new subscriber", "trackId", t.params.MediaTrack.ID(), "subscriberId", sub.ID())
 	trackID := t.params.MediaTrack.ID()
 	subscriberID := sub.ID()
 
@@ -130,6 +130,8 @@ func (t *MediaTrackSubscriptions) AddSubscriber(sub types.LocalParticipant, code
 	case livekit.TrackType_VIDEO:
 		rtcpFeedback = t.params.SubscriberConfig.RTCPFeedback.Video
 	}
+
+	t.params.Logger.Debugw("SPOT: Creating a new downtrack for subscriber", "subscriberId", subscriberID)
 	downTrack, err := sfu.NewDownTrack(
 		webrtc.RTPCodecCapability{
 			MimeType:     codec.MimeType,
@@ -205,6 +207,7 @@ func (t *MediaTrackSubscriptions) AddSubscriber(sub types.LocalParticipant, code
 	// when out track is bound, start loop to send reports
 	downTrack.OnBind(func() {
 		go subTrack.Bound()
+		t.params.Logger.Debugw("SPOT: Downtrack bound for", "subscriberId", sub.ID())
 		go t.sendDownTrackBindingReports(sub)
 	})
 
