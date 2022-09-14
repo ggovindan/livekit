@@ -252,7 +252,7 @@ func NewDownTrack(
 }
 
 // Bind is called by the PeerConnection after negotiation is complete
-// This asserts that the code requested is supported by the remote peer.
+// This asserts that the codec requested is supported by the remote peer.
 // If so it sets up all the state (SSRC and PayloadType) to have a call
 func (d *DownTrack) Bind(t webrtc.TrackLocalContext) (webrtc.RTPCodecParameters, error) {
 	d.bindLock.Lock()
@@ -308,6 +308,7 @@ func (d *DownTrack) Bind(t webrtc.TrackLocalContext) (webrtc.RTPCodecParameters,
 // Unbind implements the teardown logic when the track is no longer needed. This happens
 // because a track has been stopped.
 func (d *DownTrack) Unbind(_ webrtc.TrackLocalContext) error {
+	d.logger.Debugw("SPOT: Downtrack unbound", "subscriberId", d.subscriberID)
 	d.bound.Store(false)
 	return nil
 }
@@ -393,6 +394,7 @@ func (d *DownTrack) stopKeyFrameRequester() {
 
 func (d *DownTrack) keyFrameRequester(generation uint32, layer int32) {
 	interval := 2 * d.rtpStats.GetRtt()
+	d.logger.Debugw("SPOT: Expected Keyframe interval based on RTT ", "interval", interval)
 	if interval < keyFrameIntervalMin {
 		interval = keyFrameIntervalMin
 	}
