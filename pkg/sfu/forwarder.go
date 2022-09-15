@@ -1199,10 +1199,9 @@ func (f *Forwarder) getTranslationParamsVideo(extPkt *buffer.ExtPacket, layer in
 		}
 	}
 
-	f.logger.Debugw("SPOTAI: getTranslationParamsVideo", "current", f.currentLayers, "target", f.targetLayers, "layer arg", layer)
-
 	if f.targetLayers.Spatial != f.currentLayers.Spatial {
 		if f.targetLayers.Spatial == layer {
+			f.logger.Debugw("SPOTAI: found target.Spatial == layer", "extPkt.KeyFrame", extPkt.KeyFrame, "tp.switchingToTargetLayer", tp.switchingToTargetLayer, "layer arg", layer)
 			if extPkt.KeyFrame || tp.switchingToTargetLayer {
 				// lock to target layer
 				f.logger.Debugw("locking to target layer", "current", f.currentLayers, "target", f.targetLayers)
@@ -1224,6 +1223,7 @@ func (f *Forwarder) getTranslationParamsVideo(extPkt *buffer.ExtPacket, layer in
 
 	// if we have layer selector, let it decide whether to drop or not
 	if f.ddLayerSelector == nil && f.currentLayers.Spatial != layer {
+		f.logger.Debugw("SPOTAI: dropping packet on 1226")
 		tp.shouldDrop = true
 		return tp, nil
 	}
@@ -1247,6 +1247,7 @@ func (f *Forwarder) getTranslationParamsVideo(extPkt *buffer.ExtPacket, layer in
 		//
 		// To differentiate, drop only when in DEFICIENT state.
 		//
+		f.logger.Debugw("SPOTAI: dropping packet on 1250")
 		tp.shouldDrop = true
 		tp.isDroppingRelevant = true
 		return tp, nil

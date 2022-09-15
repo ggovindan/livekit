@@ -481,6 +481,7 @@ func (b *Buffer) getExtPacket(rawPacket []byte, rtpPacket *rtp.Packet, arrivalTi
 		}
 	case "video/h264":
 		ep.KeyFrame = IsH264Keyframe(rtpPacket.Payload)
+		b.logger.Debugw("SPOTAI: getExtPacket", "keyframe", ep.KeyFrame)
 
 	case "video/vp9":
 		ep.KeyFrame = IsVp9Keyframe(rtpPacket.Payload)
