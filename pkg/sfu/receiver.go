@@ -530,6 +530,7 @@ func (w *WebRTCReceiver) getDeltaStats() map[uint32]*buffer.StreamStatsWithLayer
 
 func (w *WebRTCReceiver) forwardRTP(layer int32) {
 	tracker := w.streamTrackerManager.GetTracker(layer)
+	w.logger.Debugw("SPOTAI: forwardRTP", "layer", layer)
 
 	defer func() {
 		w.closeOnce.Do(func() {
@@ -564,6 +565,7 @@ func (w *WebRTCReceiver) forwardRTP(layer int32) {
 			spatialTracker.Observe(pkt.Packet.SequenceNumber, pkt.Temporal, len(pkt.RawPacket), len(pkt.Packet.Payload))
 		}
 
+		w.logger.Debugw("SPOTAI: forwardRTP", "pkt", pkt)
 		w.downTrackSpreader.Broadcast(spatialLayer, pkt)
 	}
 }

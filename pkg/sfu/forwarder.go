@@ -1183,6 +1183,8 @@ func (f *Forwarder) getTranslationParamsAudio(extPkt *buffer.ExtPacket) (*Transl
 func (f *Forwarder) getTranslationParamsVideo(extPkt *buffer.ExtPacket, layer int32) (*TranslationParams, error) {
 	tp := &TranslationParams{}
 
+	f.logger.Debugw("SPOTAI: getTranslationParamsVideo Entering", "current", f.currentLayers, "target", f.targetLayers, "layer arg", layer)
+
 	if f.targetLayers == InvalidLayers {
 		// stream is paused by streamallocator
 		tp.shouldDrop = true
@@ -1196,6 +1198,8 @@ func (f *Forwarder) getTranslationParamsVideo(extPkt *buffer.ExtPacket, layer in
 			return tp, nil
 		}
 	}
+
+	f.logger.Debugw("SPOTAI: getTranslationParamsVideo", "current", f.currentLayers, "target", f.targetLayers, "layer arg", layer)
 
 	if f.targetLayers.Spatial != f.currentLayers.Spatial {
 		if f.targetLayers.Spatial == layer {
