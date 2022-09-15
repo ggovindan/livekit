@@ -256,8 +256,10 @@ func (d *DownTrack) Bind(t webrtc.TrackLocalContext) (webrtc.RTPCodecParameters,
 	d.payloadType = uint8(codec.PayloadType)
 	d.writeStream = t.WriteStream()
 	d.mime = strings.ToLower(codec.MimeType)
+	d.logger.Debugw("SPOTAI: Bind() creating RTCP factory ")
 	if rr := d.bufferFactory.GetOrNew(packetio.RTCPBufferPacket, uint32(t.SSRC())).(*buffer.RTCPReader); rr != nil {
 		rr.OnPacket(func(pkt []byte) {
+			d.logger.Debugw("SPOTAI: Bind() RTCP packet received ")
 			d.handleRTCP(pkt)
 		})
 	}
