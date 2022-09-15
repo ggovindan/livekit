@@ -15,9 +15,7 @@ import (
 	dd "github.com/livekit/livekit-server/pkg/sfu/dependencydescriptor"
 )
 
-//
 // Forwarder
-//
 const (
 	FlagPauseOnDowngrade  = true
 	FlagFilterRTX         = true
@@ -1052,6 +1050,7 @@ func (f *Forwarder) CheckSync() (locked bool, layer int32) {
 
 	layer = f.targetLayers.Spatial
 	locked = f.targetLayers.Spatial == f.currentLayers.Spatial
+	f.logger.Debugw("SPOTAI: CheckSync", "layer", layer, "locked", locked, "targetLayers.Spatial", f.targetLayers.Spatial, "currentLayers.Spatial", f.currentLayers.Spatial)
 
 	return
 }
