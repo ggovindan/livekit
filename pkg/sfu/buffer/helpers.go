@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/pion/rtp/codecs"
-
-	"github.com/livekit/protocol/logger"
 )
 
 var (
@@ -219,64 +217,65 @@ func IsH264Keyframe(payload []byte) bool {
 	if len(payload) < 1 {
 		return false
 	}
-	nalu := payload[0] & 0x1F
-	if nalu == 0 {
-		// reserved
-		return false
-	} else if nalu <= 23 {
-		// simple NALU
-		return nalu == 5
-	} else if nalu == 24 || nalu == 25 || nalu == 26 || nalu == 27 {
-		// STAP-A, STAP-B, MTAP16 or MTAP24
-		i := 1
-		if nalu == 25 || nalu == 26 || nalu == 27 {
-			// skip DON
-			i += 2
-		}
-		for i < len(payload) {
-			if i+2 > len(payload) {
-				return false
-			}
-			length := uint16(payload[i])<<8 |
-				uint16(payload[i+1])
-			i += 2
-			if i+int(length) > len(payload) {
-				return false
-			}
-			offset := 0
-			if nalu == 26 {
-				offset = 3
-			} else if nalu == 27 {
-				offset = 4
-			}
-			if offset >= int(length) {
-				return false
-			}
-			n := payload[i+offset] & 0x1F
-			if n == 7 {
-				return true
-			} else if n >= 24 {
-				// is this legal?
-				logger.Debugw("Non-simple NALU within a STAP")
-			}
-			i += int(length)
-		}
-		if i == len(payload) {
-			return false
-		}
-		return false
-	} else if nalu == 28 || nalu == 29 {
-		// FU-A or FU-B
-		if len(payload) < 2 {
-			return false
-		}
-		if (payload[1] & 0x80) == 0 {
-			// not a starting fragment
-			return false
-		}
-		return payload[1]&0x1F == 7
-	}
-	return false
+	return true
+	//nalu := payload[0] & 0x1F
+	//if nalu == 0 {
+	//	// reserved
+	//	return false
+	//} else if nalu <= 23 {
+	//	// simple NALU
+	//	return nalu == 5
+	//} else if nalu == 24 || nalu == 25 || nalu == 26 || nalu == 27 {
+	//	// STAP-A, STAP-B, MTAP16 or MTAP24
+	//	i := 1
+	//	if nalu == 25 || nalu == 26 || nalu == 27 {
+	//		// skip DON
+	//		i += 2
+	//	}
+	//	for i < len(payload) {
+	//		if i+2 > len(payload) {
+	//			return false
+	//		}
+	//		length := uint16(payload[i])<<8 |
+	//			uint16(payload[i+1])
+	//		i += 2
+	//		if i+int(length) > len(payload) {
+	//			return false
+	//		}
+	//		offset := 0
+	//		if nalu == 26 {
+	//			offset = 3
+	//		} else if nalu == 27 {
+	//			offset = 4
+	//		}
+	//		if offset >= int(length) {
+	//			return false
+	//		}
+	//		n := payload[i+offset] & 0x1F
+	//		if n == 7 {
+	//			return true
+	//		} else if n >= 24 {
+	//			// is this legal?
+	//			logger.Debugw("Non-simple NALU within a STAP")
+	//		}
+	//		i += int(length)
+	//	}
+	//	if i == len(payload) {
+	//		return false
+	//	}
+	//	return false
+	//} else if nalu == 28 || nalu == 29 {
+	//	// FU-A or FU-B
+	//	if len(payload) < 2 {
+	//		return false
+	//	}
+	//	if (payload[1] & 0x80) == 0 {
+	//		// not a starting fragment
+	//		return false
+	//	}
+	//	return payload[1]&0x1F == 7
+	//}
+	//return false
 }
 
 // IsAV1Keyframe detects if vp9 payload is a keyframe
