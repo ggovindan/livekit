@@ -705,6 +705,7 @@ func (s *StreamAllocator) allocateTrack(track *Track) {
 	// if not deficient, free pass allocate track
 	if !s.params.Config.Enabled || s.state == StateStable || !track.IsManaged() {
 		update := NewStreamStateUpdate()
+		s.params.Logger.Infow("SPOTAI: calling AllocateOptimal from allocateTrack")
 		allocation := track.AllocateOptimal()
 		update.HandleStreamingChange(allocation.change, track)
 		s.maybeSendUpdate(update)
@@ -904,6 +905,7 @@ func (s *StreamAllocator) allocateAllTracks() {
 			continue
 		}
 
+		s.params.Logger.Debugw("calling AllocateOptimal from allocateAllTracks")
 		allocation := track.AllocateOptimal()
 		update.HandleStreamingChange(allocation.change, track)
 

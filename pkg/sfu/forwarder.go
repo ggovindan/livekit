@@ -346,12 +346,16 @@ func (f *Forwarder) getOptimalBandwidthNeeded(brs Bitrates) int64 {
 func (f *Forwarder) bitrateAvailable(brs Bitrates, availableLayers []int32) bool {
 	neededLayers := 0
 	var bitrateAvailableLayers []int32
+	f.logger.Debugw("SPOTAI: bitrateAvailable calc: total available layers", "count", len(f.availableLayers))
+	// feed bitrate not yet calculated for all available layers
 	for _, layer := range f.availableLayers {
+		f.logger.Debugw("SPOTAI: bitrateAvailable calc: total layer info", "spatial", layer)
 		if layer > f.maxLayers.Spatial {
 			continue
 		}
 
 		neededLayers++
+		f.logger.Debugw("SPOTAI: bitrateAvailable calc: needed layer inc", "needed", neededLayers, "maxtemporal", f.maxLayers.Temporal)
 		for t := f.maxLayers.Temporal; t >= 0; t-- {
 			if brs[layer][t] != 0 {
 				bitrateAvailableLayers = append(bitrateAvailableLayers, layer)
@@ -360,6 +364,7 @@ func (f *Forwarder) bitrateAvailable(brs Bitrates, availableLayers []int32) bool
 		}
 	}
 
+	f.logger.Debugw("SPOTAI: bitrateAvailable before returning ", "needed", neededLayers, "len of available layers", len(bitrateAvailableLayers))
 	return len(bitrateAvailableLayers) == neededLayers
 }
 
@@ -436,6 +441,7 @@ func (f *Forwarder) AllocateOptimal(brs Bitrates) VideoAllocation {
 		// feed is dry
 		state = VideoAllocationStateFeedDry
 	case !f.bitrateAvailable(brs, f.availableLayers):
+		f.logger.Debugw("bitrate not available for allocation", "sent bitrate", brs, "available layers", f.availableLayers)
 		// feed bitrate not yet calculated for all available layers
 		state = VideoAllocationStateAwaitingMeasurement
 
