@@ -1,6 +1,7 @@
 package buffer
 
 import (
+	"github.com/livekit/protocol/logger"
 	"io"
 
 	"go.uber.org/atomic"
@@ -39,6 +40,7 @@ func (r *RTCPReader) Close() error {
 }
 
 func (r *RTCPReader) OnPacket(f func([]byte)) {
+	logger.Debugw("Packed received on RTCP reader")
 	r.onPacket.Store(f)
 }
 
