@@ -3,6 +3,7 @@ package buffer
 import (
 	"encoding/binary"
 	"errors"
+	"github.com/livekit/protocol/logger"
 	"time"
 
 	"github.com/pion/rtp/codecs"
@@ -215,67 +216,79 @@ func VP8PictureIdSizeDiff(mBit1 bool, mBit2 bool) int {
 // all credits belongs to Juliusz Chroboczek @jech and the awesome Galene SFU
 func IsH264Keyframe(payload []byte) bool {
 	if len(payload) < 1 {
+		logger.Debugw("GURU: Payload length less than 1 return false")
 		return false
 	}
-	return true
-	//nalu := payload[0] & 0x1F
-	//if nalu == 0 {
-	//	// reserved
-	//	return false
-	//} else if nalu <= 23 {
-	//	// simple NALU
-	//	return nalu == 5
-	//} else if nalu == 24 || nalu == 25 || nalu == 26 || nalu == 27 {
-	//	// STAP-A, STAP-B, MTAP16 or MTAP24
-	//	i := 1
-	//	if nalu == 25 || nalu == 26 || nalu == 27 {
-	//		// skip DON
-	//		i += 2
-	//	}
-	//	for i < len(payload) {
-	//		if i+2 > len(payload) {
-	//			return false
-	//		}
-	//		length := uint16(payload[i])<<8 |
-	//			uint16(payload[i+1])
-	//		i += 2
-	//		if i+int(length) > len(payload) {
-	//			return false
-	//		}
-	//		offset := 0
-	//		if nalu == 26 {
-	//			offset = 3
-	//		} else if nalu == 27 {
-	//			offset = 4
-	//		}
-	//		if offset >= int(length) {
-	//			return false
-	//		}
-	//		n := payload[i+offset] & 0x1F
-	//		if n == 7 {
-	//			return true
-	//		} else if n >= 24 {
-	//			// is this legal?
-	//			logger.Debugw("Non-simple NALU within a STAP")
-	//		}
-	//		i += int(length)
-	//	}
-	//	if i == len(payload) {
-	//		return false
-	//	}
-	//	return false
-	//} else if nalu == 28 || nalu == 29 {
-	//	// FU-A or FU-B
-	//	if len(payload) < 2 {
-	//		return false
-	//	}
-	//	if (payload[1] & 0x80) == 0 {
-	//		// not a starting fragment
-	//		return false
-	//	}
-	//	return payload[1]&0x1F == 7
-	//}
-	//return false
+
+	nalu := payload[0] & 0x1F
+	if nalu == 0 {
+		// reserved
+		logger.Debugw("GURU: NALU is reserved return false")
+		return false
+	} else if nalu <= 23 {
+		// simple NALU
+		logger.Debugw("GURU: NALU<=23 ", "NALU == 5", nalu)
+		return nalu == 5
+	} else if nalu == 24 || nalu == 25 || nalu == 26 || nalu == 27 {
+		// STAP-A, STAP-B, MTAP16 or MTAP24
+		i := 1
+		if nalu == 25 || nalu == 26 || nalu == 27 {
+			// skip DON
+			i += 2
+		}
+		for i < len(payload) {
+			if i+2 > len(payload) {
+				logger.Debugw("GURU: I=2 > len(payload) ", "i+2", i+2, "len(payload)", len(payload))
+				return false
+			}
+			length := uint16(payload[i])<<8 |
+				uint16(payload[i+1])
+			i += 2
+			if i+int(length) > len(payload) {
+				logger.Debugw("GURU: I=2 > len(payload) ", "i+int(length)", i+int(length), "len(payload)", len(payload))
+				return false
+			}
+			offset := 0
+			if nalu == 26 {
+				offset = 3
+			} else if nalu == 27 {
+				offset = 4
+			}
+			if offset >= int(length) {
+				logger.Debugw("GURU: offset >= length ", "offset", offset, "length", int(length))
+				return false
+			}
+			n := payload[i+offset] & 0x1F
+			if n == 7 {
+				logger.Debugw("GURU: :) :) :) n==7 and returning true")
+				return true
+			} else if n >= 24 {
+				// is this legal?
+				logger.Debugw("Non-simple NALU within a STAP")
+			}
+			i += int(length)
+		}
+		if i == len(payload) {
+			logger.Debugw("GURU: i == len(payload) ", "i", i, "payload", len(payload))
+			return false
+		}
+		return false
+	} else if nalu == 28 || nalu == 29 {
+		// FU-A or FU-B
+		if len(payload) < 2 {
+			logger.Debugw("GURU: nalu=28/29 and payload <2 ", "nalu", nalu, "payload", len(payload))
+			return false
+		}
+		if (payload[1] & 0x80) == 0 {
+			// not a starting fragment
+			logger.Debugw("GURU: not a starting fragment ", "payload[1]", payload[1]&0x80)
+			return false
+		}
+		logger.Debugw("GURU: FINAL payload[1]&0x1F == 7 ", "payload[1]&0x1F == 7", payload[1]&0x1F == 7)
+		return payload[1]&0x1F == 7
+	}
+	logger.Debugw("GURU: FINAL before returning false", "NALU", nalu)
+	return false
 }
 
 // IsAV1Keyframe detects if vp9 payload is a keyframe
