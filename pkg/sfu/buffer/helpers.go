@@ -228,7 +228,7 @@ func IsH264Keyframe(payload []byte) bool {
 	} else if nalu <= 23 {
 		// simple NALU
 		logger.Debugw("GURU: NALU<=23 ", "NALU == 5", nalu)
-		return nalu == 5
+		return nalu == 7
 	} else if nalu == 24 || nalu == 25 || nalu == 26 || nalu == 27 {
 		// STAP-A, STAP-B, MTAP16 or MTAP24
 		i := 1
@@ -259,8 +259,9 @@ func IsH264Keyframe(payload []byte) bool {
 				return false
 			}
 			n := payload[i+offset] & 0x1F
+			logger.Debugw("GURU: Before calculating n ==7", "i", i, "offset", offset, "n", n)
 			if n == 7 {
-				logger.Debugw("GURU: :) :) :) n==7 and returning true")
+				logger.Debugw("GURU: :) :) :) n==7 and returning true", "i", i, "offset", offset, "n", n)
 				return true
 			} else if n >= 24 {
 				// is this legal?
